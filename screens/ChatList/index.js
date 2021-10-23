@@ -235,7 +235,9 @@ const ChatList = ({ navigation }) => {
               borderBottomColor: "#C7C6CE",
               marginHorizontal: 20,
             }}
-            onPress={() => navigation.navigate("ChatScreen", { item: item })}
+            onPress={() => {
+              navigation.navigate("ChatScreen", { item: item });
+            }}
           >
             <Image
               style={{

@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { Button, Avatar, Text, ListItem } from "react-native-elements";
 import { KeyboardAvoidingView } from "react-native";
-import { StatusBar } from "react-native";
+import { StatusBar, ImageBackground } from "react-native";
 import * as firebase from "firebase";
 import { db } from "../../firebase";
 import { useSelector } from "react-redux";
@@ -18,6 +18,8 @@ import { AntDesign, Entypo } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/core";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 const width = Dimensions.get("window").width - 36;
 
 const HeaderComp = ({ user }) => {
@@ -371,63 +373,118 @@ const HeaderComp = ({ user }) => {
       index: index,
     });
   };
+  console.log("info", info);
   return (
     <KeyboardAvoidingView style={styles.container}>
       <StatusBar style="auto" />
       {/* <ScrollView> */}
 
-      <View
-        style={[styles.loginHeader, { backgroundColor: "black", padding: 20 }]}
-      >
-        <View style={[styles.userDetails, { backgroundColor: "orange" }]}>
-          <View style={[styles.a, { backgroundColor: "blue" }]}>
-            <TouchableOpacity
-              onPress={() => navigateUser(followers, "Followers")}
-              style={[
-                styles.stats,
-                {
-                  borderRightWidth: 1,
-                  borderRightColor: "lightgray",
-                  paddingRight: 10,
-                },
-              ]}
-            >
-              <Text style={styles.userText}>{followers.length}</Text>
-              <Text style={styles.text}>Followers</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => navigateUser(following, "Following")}
-              style={[
-                styles.stats,
-                {
-                  borderRightWidth: 1,
-                  borderRightColor: "lightgray",
-                  paddingRight: 10,
-                },
-              ]}
-            >
-              <Text style={styles.userText}>{following.length}</Text>
-              <Text style={styles.text}>Following</Text>
-            </TouchableOpacity>
-            <View style={[styles.stats, { paddingRight: 10 }]}>
-              <Text style={styles.userText}>{likes}</Text>
-              <AntDesign name="heart" size={24} color="red" />
-            </View>
-          </View>
-          <View style={[styles.info, { backgroundColor: "red" }]}>
+      <View style={[styles.loginHeader]}>
+        <ImageBackground
+          resizeMode="stretch"
+          blurRadius={40}
+          source={{
+            uri:
+              user?.photoURL ||
+              "https://www.nicepng.com/png/detail/128-1280406_TouchableOpacity-user-icon-png-user-circle-icon-png.png",
+          }}
+          style={{
+            paddingTop: 70,
+            backgroundColor: "rgb(37,63,110)",
+            width: Dimensions.get("window").width,
+          }}
+        >
+          <View
+            style={{
+              height: 35,
+              backgroundColor: "white",
+              position: "absolute",
+              bottom: 0,
+              width: Dimensions.get("window").width,
+              borderTopLeftRadius: 99,
+              borderTopRightRadius: 99,
+            }}
+          />
+          <TouchableOpacity style={[styles.dp]} activeOpacity={0.8}>
+            <Avatar
+              size="large"
+              source={{
+                uri:
+                  user?.photoURL ||
+                  "https://www.nicepng.com/png/detail/128-1280406_TouchableOpacity-user-icon-png-user-circle-icon-png.png",
+              }}
+              icon={{ name: "user", type: "font-awesome" }}
+              activeOpacity={0.7}
+              containerStyle={{ borderRadius: 999 }}
+              avatarStyle={{ borderRadius: 999 }}
+            />
+          </TouchableOpacity>
+        </ImageBackground>
+
+        <View style={[styles.userDetails]}>
+          <View style={[styles.info]}>
             <Text
-              style={{ fontSize: 17, fontWeight: "bold", paddingVertical: 10 }}
+              style={{
+                fontSize: 17,
+                fontWeight: "bold",
+                marginBottom: 10,
+                alignSelf: "center",
+              }}
             >
-              {info?.bio || info?.description}
+              {user.displayName}
+            </Text>
+            <Text
+              style={{
+                fontSize: 17,
+                fontWeight: "bold",
+                marginBottom: 10,
+                alignSelf: "center",
+              }}
+            >
+              {info?.location || info?.location}
             </Text>
             <TouchableOpacity activeOpacity={0.5} onPress={() => goToURL()}>
               <Text
-                style={{ fontSize: 17, fontWeight: "bold", color: "#49cbe9" }}
+                style={{
+                  fontSize: 17,
+                  fontWeight: "bold",
+                  color: "#49cbe9",
+                  alignSelf: "center",
+                  marginBottom: 10,
+                }}
               >
                 {info?.website}
               </Text>
             </TouchableOpacity>
+            <Text
+              style={{
+                fontSize: 17,
+                fontWeight: "bold",
+                marginBottom: 10,
+                alignSelf: "center",
+              }}
+            >
+              {info?.bio || info?.description}
+            </Text>
+
             <View style={styles.login}>
+              <TouchableOpacity
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: "rgb(211,211,211)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="chat-processing-outline"
+                  size={30}
+                  color="rgb(164,	129,	205	)"
+                />
+              </TouchableOpacity>
               <Button
                 style={styles.loginButton}
                 title={
@@ -439,35 +496,80 @@ const HeaderComp = ({ user }) => {
                       : "Follow"
                     : "Follow Request Sent"
                 }
-                buttonStyle={{ width: 200, backgroundColor: "black" }}
+                buttonStyle={{
+                  width: 200,
+                  backgroundColor: "rgb(70,	113,	241)	",
+                  borderRadius: 12,
+                  marginHorizontal: 10,
+                }}
                 onPress={handleFollow}
               />
+
+              <TouchableOpacity
+                onPress={sendCompliment}
+                style={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: 999,
+                  borderWidth: 1,
+                  borderColor: "rgb(211,211,211)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="emoticon-excited"
+                  size={30}
+                  color="rgb(248,	218	,93	)"
+                />
+              </TouchableOpacity>
             </View>
-            <Button
+            {/* <Button
               style={styles.loginButton}
               title="Send Compliment"
-              buttonStyle={{ width: 200, backgroundColor: "#49cbe9" }}
+              buttonStyle={{
+                width: 200,
+                backgroundColor: "#49cbe9",
+                borderRadius: 12,
+              }}
               onPress={sendCompliment}
-            />
+            /> */}
           </View>
         </View>
-        <TouchableOpacity
-          style={[styles.dp, { backgroundColor: "yellow" }]}
-          activeOpacity={0.8}
-        >
-          <Avatar
-            size="xlarge"
-            source={{
-              uri:
-                user?.photoURL ||
-                "https://www.nicepng.com/png/detail/128-1280406_TouchableOpacity-user-icon-png-user-circle-icon-png.png",
-            }}
-            icon={{ name: "user", type: "font-awesome" }}
-            activeOpacity={0.7}
-            containerStyle={{ marginTop: 10, marginLeft: 10, borderRadius: 12 }}
-            avatarStyle={{ borderRadius: 10 }}
-          />
-        </TouchableOpacity>
+        <View style={[styles.a]}>
+          <TouchableOpacity
+            onPress={() => navigateUser(followers, "Followers")}
+            style={[
+              styles.stats,
+              {
+                borderRightWidth: 1,
+                borderRightColor: "lightgray",
+              },
+            ]}
+          >
+            <Text style={styles.userText}>{followers.length}</Text>
+            <Text style={styles.text}>Followers</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigateUser(following, "Following")}
+            style={[
+              styles.stats,
+              {
+                borderRightWidth: 1,
+                borderRightColor: "lightgray",
+              },
+            ]}
+          >
+            <Text style={styles.userText}>{following.length}</Text>
+            <Text style={styles.text}>Following</Text>
+          </TouchableOpacity>
+          <View style={[styles.stats]}>
+            <Text style={styles.userText}>{likes}</Text>
+            <Text style={styles.text}>Likes</Text>
+
+            {/* <AntDesign name="heart" size={24} color="red" /> */}
+          </View>
+        </View>
       </View>
       {/* <View style={{margin: 10, borderTopWidth: 0.5,paddingVertical: 5}}> */}
       {/* <FlatList
@@ -508,6 +610,8 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   login: {
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 10,
   },
 
@@ -520,10 +624,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flex: 0,
     paddingVertical: 10,
-    borderBottomColor: "black",
-    borderBottomWidth: 0.3,
+    // borderBottomColor: "black",
+    // borderBottomWidth: 0.3,
     // alignItems:"",
-    alignSelf: "center",
+    // alignSelf: "center",
+    width: "100%",
+    justifyContent: "space-between",
   },
 
   userDetails: {
@@ -534,10 +640,10 @@ const styles = StyleSheet.create({
   },
 
   loginHeader: {
-    flexDirection: "row",
+    // flexDirection: "row",
     // flex: 1,
-    // alignItems: "center",
-    justifyContent: "space-between",
+    alignItems: "center",
+    // justifyContent: "space-between",
     marginHorizontal: 10,
   },
   userDetails: {
@@ -548,10 +654,12 @@ const styles = StyleSheet.create({
   userText: {
     fontSize: 16,
     marginBottom: 5,
+    fontWeight: "bold",
   },
   text: {
     fontSize: 16,
     fontWeight: "bold",
+    color: "rgb(211,	211,	211)	",
   },
   info: {
     marginVertical: 5,
@@ -563,12 +671,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginHorizontal: 5,
     marginTop: 10,
+    flex: 1,
     // paddingVertical: 20
   },
   dp: {
     // flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+    // borderRadius: 999,
     // padding: 5,
     // flex: 1,
   },

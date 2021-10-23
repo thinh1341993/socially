@@ -23,7 +23,7 @@ import { selectUser } from "../../redux/features/userSlice";
 const windowHeight = Dimensions.get("window").height;
 const windowWidth = Dimensions.get("window").width;
 const TabBarHeight = 48;
-const HeaderHeight = 300;
+const HeaderHeight = 450;
 const SafeStatusBar = Platform.select({
   ios: 44,
   android: StatusBar.currentHeight,
@@ -146,7 +146,10 @@ const UserProfile = ({ navigation, route }) => {
 
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerTitle: "User Followers",
+      headerTitle: "",
+      // headerStyle: { backgroundColor: "rgb(37,63,110)" },
+      headerTintColor: "white",
+      headerTransparent: true,
     });
   }, [navigation]);
 
