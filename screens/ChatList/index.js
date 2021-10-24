@@ -106,94 +106,195 @@ const ChatList = ({ navigation }) => {
       });
   };
 
-  if (newChat) {
-    return (
-      <View backgroundColor={"#FFFFFF"} flex={1}>
-        <StatusBar barStyle={"dark-content"} backgroundColor={"#FFFFFF"} />
-        <View
-          style={{
-            height: 60,
-            width: windowWidth,
-            flexDirection: "row",
-            alignItems: "center",
-            marginBottom: 5,
-            borderBottomWidth: 0.5,
-            borderBottomColor: "#C7C6CE",
-          }}
+  // if (newChat) {
+  //   return (
+  //     <View backgroundColor={"#FFFFFF"} flex={1}>
+  //       <StatusBar barStyle={"dark-content"} backgroundColor={"#FFFFFF"} />
+  //       <View
+  //         style={{
+  //           height: 60,
+  //           width: windowWidth,
+  //           flexDirection: "row",
+  //           alignItems: "center",
+  //           marginBottom: 5,
+  //           borderBottomWidth: 0.5,
+  //           borderBottomColor: "#C7C6CE",
+  //         }}
+  //       >
+  //         <TouchableOpacity
+  //           onPress={() => setNewChat(false)}
+  //           style={{ marginLeft: 10 }}
+  //         >
+  //           <Ionicons
+  //             name={"chevron-back-outline"}
+  //             size={35}
+  //             color={"#000000"}
+  //           />
+  //         </TouchableOpacity>
+  //         <Text style={{ fontSize: 24, color: "#000000" }}>
+  //           {" "}
+  //           Start New Chat
+  //         </Text>
+  //       </View>
+  //       {console.log(users)}
+  //       <FlatList
+  //         data={users}
+  //         keyExtractor={(item) => item.uid}
+  //         renderItem={({ item }) => (
+  //           <TouchableOpacity
+  //             style={{
+  //               alignItems: "center",
+  //               flexDirection: "row",
+  //               width: windowWidth - 40,
+  //               height: 100,
+  //               borderBottomWidth: 0.5,
+  //               borderBottomColor: "#C7C6CE",
+  //               marginHorizontal: 20,
+  //             }}
+  //             onPress={() => startNewChat(item)}
+  //           >
+  //             <Image
+  //               style={{
+  //                 resizeMode: "cover",
+  //                 height: 60,
+  //                 width: 60,
+  //                 borderTopLeftRadius: 15,
+  //                 borderBottomRightRadius: 15,
+  //                 borderTopRightRadius: 15,
+  //               }}
+  //               source={
+  //                 item.photoURL != null
+  //                   ? { uri: item.photoURL }
+  //                   : require("../../assets/user-blue.png")
+  //               }
+  //             />
+  //             <View style={{ width: windowWidth - 100 }}>
+  //               <View style={{ flexDirection: "row" }}>
+  //                 <Text
+  //                   style={{
+  //                     color: "#000000",
+  //                     fontSize: 22,
+  //                     fontWeight: "bold",
+  //                     marginLeft: 10,
+  //                   }}
+  //                 >
+  //                   {" "}
+  //                   {item.displayName}
+  //                 </Text>
+  //               </View>
+  //             </View>
+  //           </TouchableOpacity>
+  //         )}
+  //       />
+  //     </View>
+  //   );
+  // }
+
+  const ChatComponent = () => (
+    <View backgroundColor={"#FFFFFF"} flex={1}>
+      {/* <View style={{ overflow: "hidden", paddingBottom: 5 }}> */}
+      <View
+        style={{
+          height: 60,
+          width: windowWidth,
+          flexDirection: "row",
+          alignItems: "center",
+          // marginBottom: 5,
+          borderBottomWidth: 0.5,
+          borderBottomColor: "#C7C6CE",
+          // shadowColor: "#000",
+          // shadowOffset: {
+          //   width: 1,
+          //   height: 1,
+          // },
+          // shadowOpacity: 0.4,
+          // shadowRadius: 3,
+
+          // elevation: 5,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => setNewChat(false)}
+          style={{ marginLeft: 10 }}
         >
-          <TouchableOpacity
-            onPress={() => setNewChat(false)}
-            style={{ marginLeft: 10 }}
-          >
-            <Ionicons
-              name={"chevron-back-outline"}
-              size={35}
-              color={"#000000"}
-            />
-          </TouchableOpacity>
-          <Text style={{ fontSize: 24, color: "#000000" }}>
-            {" "}
-            Start New Chat
-          </Text>
-        </View>
-        {console.log(users)}
-        <FlatList
-          data={users}
-          keyExtractor={(item) => item.uid}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={{
-                alignItems: "center",
-                flexDirection: "row",
-                width: windowWidth - 40,
-                height: 100,
-                borderBottomWidth: 0.5,
-                borderBottomColor: "#C7C6CE",
-                marginHorizontal: 20,
-              }}
-              onPress={() => startNewChat(item)}
-            >
-              <Image
-                style={{
-                  resizeMode: "cover",
-                  height: 60,
-                  width: 60,
-                  borderTopLeftRadius: 15,
-                  borderBottomRightRadius: 15,
-                  borderTopRightRadius: 15,
-                }}
-                source={
-                  item.photoURL != null
-                    ? { uri: item.photoURL }
-                    : require("../../assets/user-blue.png")
-                }
-              />
-              <View style={{ width: windowWidth - 100 }}>
-                <View style={{ flexDirection: "row" }}>
-                  <Text
-                    style={{
-                      color: "#000000",
-                      fontSize: 22,
-                      fontWeight: "bold",
-                      marginLeft: 10,
-                    }}
-                  >
-                    {" "}
-                    {item.displayName}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          )}
+          <Ionicons name={"chevron-back-outline"} size={35} color={"#000000"} />
+        </TouchableOpacity>
+        <Text style={{ fontSize: 24, color: "#000000" }}> Chat</Text>
+      </View>
+      {/* </View> */}
+
+      <View
+        style={{ backgroundColor: "rgb(242,	242,	242)	", paddingVertical: 10 }}
+      >
+        <AntDesign
+          style={{ marginRight: 10, alignSelf: "flex-end" }}
+          name={"search1"}
+          size={35}
+          color={"black"}
         />
       </View>
-    );
-  }
+
+      {console.log(users)}
+      <FlatList
+        data={users}
+        keyExtractor={(item) => item.uid}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={{
+              // alignItems: "center",
+              // flexDirection: "row",
+              width: windowWidth - 40,
+              height: 100,
+              borderBottomWidth: 0.5,
+              borderBottomColor: "#C7C6CE",
+              marginHorizontal: 20,
+              marginTop: 20,
+            }}
+            onPress={() => startNewChat(item)}
+          >
+            <Image
+              style={{
+                resizeMode: "cover",
+                height: 60,
+                width: 60,
+                // borderTopLeftRadius: 15,
+                // borderBottomRightRadius: 15,
+                // borderTopRightRadius: 15,
+                borderRadius: 15,
+                // borderRadius: 999,
+              }}
+              source={
+                item.photoURL != null
+                  ? { uri: item.photoURL }
+                  : require("../../assets/user-blue.png")
+              }
+            />
+            <View style={{ width: windowWidth - 100 }}>
+              <View style={{ flexDirection: "row" }}>
+                <Text
+                  style={{
+                    color: "#000000",
+                    fontSize: 22,
+                    fontWeight: "bold",
+                    // marginLeft: 10,
+                  }}
+                >
+                  {" "}
+                  {item.displayName}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
 
   return (
     <View backgroundColor={"#FFFFFF"} flex={1}>
       <StatusBar barStyle={"dark-content"} backgroundColor={"#FFFFFF"} />
-      <View
+      {ChatComponent()}
+      {/* <View
         style={{
           width: windowWidth,
           flexDirection: "row",
@@ -304,7 +405,7 @@ const ChatList = ({ navigation }) => {
         }}
       >
         <AntDesign name={"plus"} size={30} color={"#FFFFFF"} />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };

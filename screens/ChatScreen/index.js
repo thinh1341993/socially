@@ -25,6 +25,87 @@ import { ColorPicker } from "react-native-color-picker";
 
 const windowWidth = Dimensions.get("window").width;
 
+const data = [
+  {
+    data: {
+      image: "",
+      message: "Hi Shaheem",
+      receiver: "2LM8hGoPBNP2bRMMeuZV7gMjCzf1",
+      sender: "WNeYXzxchBRr07MWdQOjsjW96aP2",
+      timestamp: {
+        nanoseconds: 760000000,
+        seconds: 1635054380,
+      },
+    },
+    id: "OhyraVdN71EeSeKBYWqA",
+  },
+  {
+    data: {
+      image: "Gv",
+      message: "Gv",
+      receiver: "2LM8hGoPBNP2bRMMeuZV7gMjCzf1",
+      sender: "WNeYXzxchBRr07MWdQOjsjW96aP2",
+      timestamp: {
+        nanoseconds: 398000000,
+        seconds: 1635054455,
+      },
+    },
+    id: "3R1k0XyUyOtilwPMyjTh",
+  },
+  {
+    data: {
+      image: "Vvh",
+      message: "Vvh",
+      receiver: "2LM8hGoPBNP2bRMMeuZV7gMjCzf1",
+      sender: "WNeYXzxchBRr07MWdQOjsjW96aPl",
+      timestamp: {
+        nanoseconds: 215000000,
+        seconds: 1635054484,
+      },
+    },
+    id: "gTwK79ykvCRwGwpg2w2Psdfs",
+  },
+  {
+    data: {
+      image: "Vvh",
+      message: "Vvh",
+      receiver: "2LM8hGoPBNP2bRMMeuZV7gMjCzf1",
+      sender: "WNeYXzxchBRr07MWdQOjsjW96aPl",
+      timestamp: {
+        nanoseconds: 215000000,
+        seconds: 1635054484,
+      },
+    },
+    id: "gTwK79ykvCRwGwpg2w2P",
+  },
+  {
+    data: {
+      image: "Vvb",
+      message: "Vvb",
+      receiver: "2LM8hGoPBNP2bRMMeuZV7gMjCzf1",
+      sender: "WNeYXzxchBRr07MWdQOjsjW96aP2",
+      timestamp: {
+        nanoseconds: 209000000,
+        seconds: 1635054490,
+      },
+    },
+    id: "GULAxNk5UVbk9DzWd7IZ",
+  },
+  {
+    data: {
+      image: "Bgg",
+      message: "Bgg",
+      receiver: "2LM8hGoPBNP2bRMMeuZV7gMjCzf1",
+      sender: "WNeYXzxchBRr07MWdQOjsjW96aP2f",
+      timestamp: {
+        nanoseconds: 773000000,
+        seconds: 1635054642,
+      },
+    },
+    id: "zM5SrVGMcjhOsI5LXkYI",
+  },
+];
+
 const ChatScreen = ({ navigation, route }) => {
   const lastSeen = "Last seen unknown"; //Last seen is not functional yet.
   const user = useSelector(selectUser);
@@ -52,6 +133,7 @@ const ChatScreen = ({ navigation, route }) => {
   }, [navigation]);
 
   useEffect(() => {
+    // setChats(data);
     const unsubscibe = db
       .collection("chats")
       .doc(chatDetails.id)
@@ -277,13 +359,59 @@ const ChatScreen = ({ navigation, route }) => {
         style={{ marginBottom: 90, marginTop: -30 }}
         contentContainerStyle={{ paddingBottom: 5, paddingTop: 15 }}
         keyExtractor={({ id }) => id}
-        renderItem={({ item, index }) => (
-          <View>
-            {(() => {
-              if (item.data.sender == user.uid) {
-                if (index - 1 >= 0) {
-                  if (index + 1 <= chats.length - 1) {
-                    if (chats[index + 1].data.sender != item.data.sender) {
+        renderItem={({ item, index }) => {
+          // console.log("item", item);
+          return (
+            <View>
+              {(() => {
+                if (item.data.sender == user.uid) {
+                  if (index - 1 >= 0) {
+                    if (index + 1 <= chats.length - 1) {
+                      if (chats[index + 1].data.sender != item.data.sender) {
+                        return (
+                          <View
+                            style={{
+                              marginLeft: 120,
+                              marginRight: 20,
+                              marginBottom: 10,
+                              flexDirection: "row",
+                              alignSelf: "flex-end",
+                              alignItems: "flex-end",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                backgroundColor: "#3240FF",
+                                alignSelf: "flex-end",
+                                padding: 10,
+                                borderRadius: 10,
+                                color: "#FFFFFF",
+                                borderBottomRightRadius: 0,
+                              }}
+                            >
+                              {item.data.message}
+                            </Text>
+                            <Image
+                              style={{
+                                resizeMode: "cover",
+                                marginLeft: 11,
+                                height: 39,
+                                width: 39,
+                                borderTopLeftRadius: 10,
+                                borderBottomRightRadius: 10,
+                                borderTopRightRadius: 10,
+                                backgroundColor: "#3240FF",
+                              }}
+                              source={
+                                user.photoURL != null
+                                  ? { uri: user.photoURL }
+                                  : require("../../assets/user.png")
+                              }
+                            />
+                          </View>
+                        );
+                      }
+                    } else {
                       return (
                         <View
                           style={{
@@ -327,77 +455,113 @@ const ChatScreen = ({ navigation, route }) => {
                         </View>
                       );
                     }
-                  } else {
-                    return (
-                      <View
-                        style={{
-                          marginLeft: 120,
-                          marginRight: 20,
-                          marginBottom: 10,
-                          flexDirection: "row",
-                          alignSelf: "flex-end",
-                          alignItems: "flex-end",
-                        }}
-                      >
-                        <Text
-                          style={{
-                            backgroundColor: "#3240FF",
-                            alignSelf: "flex-end",
-                            padding: 10,
-                            borderRadius: 10,
-                            color: "#FFFFFF",
-                            borderBottomRightRadius: 0,
-                          }}
-                        >
-                          {item.data.message}
-                        </Text>
-                        <Image
-                          style={{
-                            resizeMode: "cover",
-                            marginLeft: 11,
-                            height: 39,
-                            width: 39,
-                            borderTopLeftRadius: 10,
-                            borderBottomRightRadius: 10,
-                            borderTopRightRadius: 10,
-                            backgroundColor: "#3240FF",
-                          }}
-                          source={
-                            user.photoURL != null
-                              ? { uri: user.photoURL }
-                              : require("../../assets/user.png")
-                          }
-                        />
-                      </View>
-                    );
                   }
-                }
 
-                return (
-                  <View
-                    style={{
-                      marginLeft: 70,
-                      marginRight: 70,
-                      marginBottom: 10,
-                    }}
-                  >
-                    <Text
+                  return (
+                    <View
                       style={{
-                        backgroundColor: "#3240FF",
+                        marginLeft: 120,
+                        marginRight: 20,
+                        marginBottom: 10,
+                        flexDirection: "row",
                         alignSelf: "flex-end",
-                        padding: 10,
-                        borderRadius: 10,
-                        color: "#FFFFFF",
+                        alignItems: "flex-end",
                       }}
                     >
-                      {item.data.message}
-                    </Text>
-                  </View>
-                );
-              } else {
-                if (index - 1 >= 0) {
-                  if (index + 1 <= chats.length - 1) {
-                    if (chats[index + 1].data.sender != item.data.sender) {
+                      <Text
+                        style={{
+                          backgroundColor: "#3240FF",
+                          alignSelf: "flex-end",
+                          padding: 10,
+                          borderRadius: 10,
+                          color: "#FFFFFF",
+                          borderBottomRightRadius: 0,
+                        }}
+                      >
+                        {item.data.message}
+                      </Text>
+                      <Image
+                        style={{
+                          resizeMode: "cover",
+                          marginLeft: 11,
+                          height: 39,
+                          width: 39,
+                          borderTopLeftRadius: 10,
+                          borderBottomRightRadius: 10,
+                          borderTopRightRadius: 10,
+                          backgroundColor: "#3240FF",
+                        }}
+                        source={
+                          user.photoURL != null
+                            ? { uri: user.photoURL }
+                            : require("../../assets/user.png")
+                        }
+                      />
+                    </View>
+                  );
+                } else {
+                  if (index - 1 >= 0) {
+                    if (index + 1 <= chats.length - 1) {
+                      if (chats[index + 1].data.sender != item.data.sender) {
+                        return (
+                          <View
+                            style={{
+                              marginLeft: 20,
+                              marginRight: 120,
+                              marginBottom: 10,
+                              flexDirection: "row",
+                              alignSelf: "flex-start",
+                              alignItems: "flex-end",
+                            }}
+                          >
+                            <Image
+                              style={{
+                                resizeMode: "cover",
+                                marginBottom: 29,
+                                marginRight: 11,
+                                height: 39,
+                                width: 39,
+                                borderRadius: 10,
+                                borderBottomRightRadius: 0,
+                                backgroundColor: "#F5F5F5",
+                              }}
+                              source={
+                                friend?.photoURL != null
+                                  ? { uri: friend.photoURL }
+                                  : require("../../assets/user-blue.png")
+                              }
+                            />
+                            <View>
+                              <Text
+                                style={{
+                                  backgroundColor: "#F5F5F5",
+                                  alignSelf: "flex-start",
+                                  padding: 10,
+                                  borderRadius: 10,
+                                  color: "#000000",
+                                  borderBottomLeftRadius: 0,
+                                }}
+                              >
+                                {item.data.message}
+                              </Text>
+                              <Text
+                                style={{
+                                  alignSelf: "flex-end",
+                                  color: "#C7C6CE",
+                                  padding: 5,
+                                }}
+                              >
+                                {moment(
+                                  new Date(
+                                    item.data.timestamp.seconds * 1000
+                                  ).toUTCString()
+                                ).fromNow()}
+                              </Text>
+                            </View>
+                          </View>
+                        );
+                      }
+                    } else {
                       return (
                         <View
                           style={{
@@ -456,92 +620,55 @@ const ChatScreen = ({ navigation, route }) => {
                         </View>
                       );
                     }
-                  } else {
-                    return (
-                      <View
-                        style={{
-                          marginLeft: 20,
-                          marginRight: 120,
-                          marginBottom: 10,
-                          flexDirection: "row",
-                          alignSelf: "flex-start",
-                          alignItems: "flex-end",
-                        }}
-                      >
-                        <Image
-                          style={{
-                            resizeMode: "cover",
-                            marginBottom: 29,
-                            marginRight: 11,
-                            height: 39,
-                            width: 39,
-                            borderRadius: 10,
-                            borderBottomRightRadius: 0,
-                            backgroundColor: "#F5F5F5",
-                          }}
-                          source={
-                            friend?.photoURL != null
-                              ? { uri: friend.photoURL }
-                              : require("../../assets/user-blue.png")
-                          }
-                        />
-                        <View>
-                          <Text
-                            style={{
-                              backgroundColor: "#F5F5F5",
-                              alignSelf: "flex-start",
-                              padding: 10,
-                              borderRadius: 10,
-                              color: "#000000",
-                              borderBottomLeftRadius: 0,
-                            }}
-                          >
-                            {item.data.message}
-                          </Text>
-                          <Text
-                            style={{
-                              alignSelf: "flex-end",
-                              color: "#C7C6CE",
-                              padding: 5,
-                            }}
-                          >
-                            {moment(
-                              new Date(
-                                item.data.timestamp.seconds * 1000
-                              ).toUTCString()
-                            ).fromNow()}
-                          </Text>
-                        </View>
-                      </View>
-                    );
                   }
-                }
 
-                return (
-                  <View
-                    style={{
-                      marginLeft: 70,
-                      marginRight: 70,
-                      marginBottom: 10,
-                    }}
-                  >
-                    <Text
+                  return (
+                    <View
                       style={{
-                        backgroundColor: "#F5F5F5",
+                        marginLeft: 20,
+                        marginRight: 120,
+                        marginBottom: 10,
+                        flexDirection: "row",
                         alignSelf: "flex-start",
-                        padding: 10,
-                        borderRadius: 10,
-                        color: "#000000",
+                        alignItems: "flex-end",
                       }}
                     >
-                      {item.data.message}
-                    </Text>
-                  </View>
-                );
-              }
-            })()}
-          </View>
-        )}
+                      <Image
+                        style={{
+                          resizeMode: "cover",
+                          marginBottom: 29,
+                          marginRight: 11,
+                          height: 39,
+                          width: 39,
+                          borderRadius: 10,
+                          borderBottomRightRadius: 0,
+                          backgroundColor: "#F5F5F5",
+                        }}
+                        source={
+                          friend?.photoURL != null
+                            ? { uri: friend.photoURL }
+                            : require("../../assets/user-blue.png")
+                        }
+                      />
+                      <Text
+                        style={{
+                          backgroundColor: "#F5F5F5",
+                          alignSelf: "flex-start",
+                          padding: 10,
+                          borderRadius: 10,
+                          color: "#000000",
+                          borderBottomLeftRadius: 0,
+                        }}
+                      >
+                        {item.data.message}
+                      </Text>
+                    </View>
+                  );
+                }
+              })()}
+            </View>
+          );
+        }}
       />
 
       {chatDetails?.blockedBy === user?.uid ? (
@@ -620,8 +747,10 @@ const ChatScreen = ({ navigation, route }) => {
               </View>
             </View>
             <TouchableOpacity
-              disabled={blockCheck}
-              onPress={sendMessage}
+              // disabled={blockCheck}
+              onPress={() => {
+                sendMessage(input);
+              }}
               style={{
                 backgroundColor: "#D2FFF4",
                 width: 50,
