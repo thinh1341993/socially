@@ -10,6 +10,8 @@ import {
   TextInput,
   ActivityIndicator,
   Modal,
+  SafeAreaView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { AntDesign, Ionicons, Fontisto } from "@expo/vector-icons";
 import { db } from "../../firebase";
@@ -22,6 +24,8 @@ import moment from "moment";
 import * as firebase from "firebase";
 import Menu from "react-native-material-menu";
 import { ColorPicker } from "react-native-color-picker";
+import EmojiSelector, { Categories } from "react-native-emoji-selector";
+import { fetchGifs, fetchSearch } from "../../gifs";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -116,6 +120,10 @@ const ChatScreen = ({ navigation, route }) => {
   const [friend, setFriend] = useState("");
   const [backgroundModalVisible, setBackgroundModalVisible] = useState(false);
   const [chatBackground, setChatBackground] = useState("black");
+  const [emoji, setEmoji] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [term, updateTerm] = useState("");
+  const [gifs, setGifs] = useState([]);
 
   var menu = null;
 
@@ -147,6 +155,10 @@ const ChatScreen = ({ navigation, route }) => {
     return unsubscibe;
   }, [chats, chatDetails]);
 
+  useEffect(() => {
+    if (!term) fetchGifs(setGifs);
+  }, []);
+
   const blockCheck = () => {
     if (blockedBy == "") {
       return false;
@@ -156,8 +168,11 @@ const ChatScreen = ({ navigation, route }) => {
   };
 
   const sendMessage = (image) => {
+    let arrayOfStrings = ["jpeg", "jpg", "png", "gif", "bmp"];
+    const find = arrayOfStrings.find((v) => image.includes(v));
+    console.log("sdfsdf", find);
     let img;
-    img = typeof image === "string" ? image : "";
+    img = find ? image : "";
     Keyboard.dismiss();
     db.collection("chats").doc(chatDetails.id).collection("data").add({
       message: input,
@@ -243,6 +258,11 @@ const ChatScreen = ({ navigation, route }) => {
     setBackgroundModalVisible(false);
   };
 
+  const onEdit = (newTerm) => {
+    updateTerm(newTerm);
+    fetchSearch(setGifs, newTerm);
+  };
+
   if (loading) {
     return (
       <View
@@ -259,115 +279,178 @@ const ChatScreen = ({ navigation, route }) => {
   }
 
   return (
-    <View backgroundColor={chatBackground} flex={1}>
+    <SafeAreaView backgroundColor={chatBackground} flex={1}>
       <StatusBar
         barStyle={chatDetails ? "light-content" : "dark-content"}
         backgroundColor={chatDetails ? "#000000" : "#FFFFFF"}
       />
-      <View
-        style={{
-          height: 60,
-          width: windowWidth,
-          flexDirection: "row",
-          alignItems: "center",
-          marginBottom: 30,
-          borderBottomWidth: 0.5,
-          borderBottomColor: "#C7C6CE",
-        }}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ flex: 1 }}
+        keyboardVerticalOffset={20}
       >
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={{ marginLeft: 10 }}
-        >
-          <Ionicons
-            name={"chevron-back-outline"}
-            size={35}
-            color={chatDetails ? "#FFFFFF" : "#000000"}
-          />
-        </TouchableOpacity>
-        <Image
+        <View
           style={{
-            resizeMode: "cover",
-            marginLeft: 20,
-            height: 40,
-            width: 40,
-            borderTopLeftRadius: 10,
-            borderBottomRightRadius: 10,
-            borderTopRightRadius: 10,
-            backgroundColor: "#F5F5F5",
+            height: 60,
+            width: windowWidth,
+            flexDirection: "row",
+            alignItems: "center",
+            marginBottom: 30,
+            borderBottomWidth: 0.5,
+            borderBottomColor: "#C7C6CE",
           }}
-          source={
-            friend?.photoURL != null
-              ? { uri: friend.photoURL }
-              : require("../../assets/user-blue.png")
-          }
-        />
-        <View style={{ width: windowWidth - 100 }}>
-          <Text
-            style={{
-              color: chatDetails ? "#FFFFFF" : "#000000",
-              fontSize: 16,
-              fontWeight: "bold",
-              marginLeft: 10,
-            }}
-          >
-            {friend.displayName}
-          </Text>
-          <Text
-            style={{
-              color: "#A3A3AD",
-              fontWeight: "bold",
-              fontSize: 16,
-              marginLeft: 10,
-            }}
-          >
-            {lastSeen}
-          </Text>
-        </View>
-        <TouchableOpacity
-          onPress={() => showMenu()}
-          style={{ position: "absolute", right: 70 }}
         >
-          <AntDesign name={"setting"} size={25} color={"#C7C6CE"} />
-        </TouchableOpacity>
-        <TouchableOpacity style={{ position: "absolute", right: 30 }}>
-          <AntDesign name={"search1"} size={25} color={"#C7C6CE"} />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={{ marginLeft: 10 }}
+          >
+            <Ionicons
+              name={"chevron-back-outline"}
+              size={35}
+              color={chatDetails ? "#FFFFFF" : "#000000"}
+            />
+          </TouchableOpacity>
+          <Image
+            style={{
+              resizeMode: "cover",
+              marginLeft: 20,
+              height: 40,
+              width: 40,
+              borderTopLeftRadius: 10,
+              borderBottomRightRadius: 10,
+              borderTopRightRadius: 10,
+              backgroundColor: "#F5F5F5",
+            }}
+            source={
+              friend?.photoURL != null
+                ? { uri: friend.photoURL }
+                : require("../../assets/user-blue.png")
+            }
+          />
+          <View style={{ width: windowWidth - 100 }}>
+            <Text
+              style={{
+                color: chatDetails ? "#FFFFFF" : "#000000",
+                fontSize: 16,
+                fontWeight: "bold",
+                marginLeft: 10,
+              }}
+            >
+              {friend.displayName}
+            </Text>
+            <Text
+              style={{
+                color: "#A3A3AD",
+                fontWeight: "bold",
+                fontSize: 16,
+                marginLeft: 10,
+              }}
+            >
+              {lastSeen}
+            </Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => showMenu()}
+            style={{ position: "absolute", right: 70 }}
+          >
+            <AntDesign name={"setting"} size={25} color={"#C7C6CE"} />
+          </TouchableOpacity>
+          <TouchableOpacity style={{ position: "absolute", right: 30 }}>
+            <AntDesign name={"search1"} size={25} color={"#C7C6CE"} />
+          </TouchableOpacity>
+        </View>
 
-      <Menu
-        style={{
-          backgroundColor: chatDetails ? "#FFFFFF" : "#000000",
-          color: chatDetails ? "#FFFFFF" : "#000000",
-        }}
-        ref={setMenuRef}
-      >
-        <MenuItem onPress={block}>
-          {" "}
-          {chatDetails.blockedBy == "" ? "Block User" : "Unblock"}
-        </MenuItem>
-        <MenuItem onPress={privateNote}> Private Note</MenuItem>
-        <MenuItem onPress={changeColor}>
-          {" "}
-          {/* {chatDetails.color ? "Light Mode" : "Dark Mode"} */}
-          Background Color
-        </MenuItem>
-      </Menu>
+        <Menu
+          style={{
+            backgroundColor: chatDetails ? "#FFFFFF" : "#000000",
+            color: chatDetails ? "#FFFFFF" : "#000000",
+          }}
+          ref={setMenuRef}
+        >
+          <MenuItem onPress={block}>
+            {" "}
+            {chatDetails.blockedBy == "" ? "Block User" : "Unblock"}
+          </MenuItem>
+          <MenuItem onPress={privateNote}> Private Note</MenuItem>
+          <MenuItem onPress={changeColor}>
+            {" "}
+            {/* {chatDetails.color ? "Light Mode" : "Dark Mode"} */}
+            Background Color
+          </MenuItem>
+        </Menu>
 
-      <FlatList
-        data={chats}
-        style={{ marginBottom: 90, marginTop: -30 }}
-        contentContainerStyle={{ paddingBottom: 5, paddingTop: 15 }}
-        keyExtractor={({ id }) => id}
-        renderItem={({ item, index }) => {
-          // console.log("item", item);
-          return (
-            <View>
-              {(() => {
-                if (item.data.sender == user.uid) {
-                  if (index - 1 >= 0) {
-                    if (index + 1 <= chats.length - 1) {
-                      if (chats[index + 1].data.sender != item.data.sender) {
+        <FlatList
+          data={chats}
+          style={{ marginBottom: 90, marginTop: -30 }}
+          contentContainerStyle={{ paddingBottom: 5, paddingTop: 15 }}
+          keyExtractor={({ id }) => id}
+          renderItem={({ item, index }) => {
+            // console.log("item", item.data?.image);
+            return (
+              <View>
+                {(() => {
+                  if (item.data.sender == user.uid) {
+                    if (index - 1 >= 0) {
+                      if (index + 1 <= chats.length - 1) {
+                        if (chats[index + 1].data.sender != item.data.sender) {
+                          return (
+                            <View
+                              style={{
+                                marginLeft: 120,
+                                marginRight: 20,
+                                marginBottom: 10,
+                                flexDirection: "row",
+                                alignSelf: "flex-end",
+                                alignItems: "flex-end",
+                              }}
+                            >
+                              {item.data?.image ? (
+                                <Image
+                                  source={{ uri: item.data?.image }}
+                                  style={{
+                                    width: windowWidth / 2,
+                                    height: 150,
+                                    borderWidth: 3,
+                                    // marginBottom: 20,
+                                  }}
+                                />
+                              ) : null}
+
+                              {!!item.data.message && (
+                                <Text
+                                  style={{
+                                    backgroundColor: "#3240FF",
+                                    alignSelf: "flex-end",
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    color: "#FFFFFF",
+                                    borderBottomRightRadius: 0,
+                                  }}
+                                >
+                                  {item.data.message}
+                                </Text>
+                              )}
+                              <Image
+                                style={{
+                                  resizeMode: "cover",
+                                  marginLeft: 11,
+                                  height: 39,
+                                  width: 39,
+                                  borderTopLeftRadius: 10,
+                                  borderBottomRightRadius: 10,
+                                  borderTopRightRadius: 10,
+                                  backgroundColor: "#3240FF",
+                                }}
+                                source={
+                                  user.photoURL != null
+                                    ? { uri: user.photoURL }
+                                    : require("../../assets/user.png")
+                                }
+                              />
+                            </View>
+                          );
+                        }
+                      } else {
                         return (
                           <View
                             style={{
@@ -379,18 +462,32 @@ const ChatScreen = ({ navigation, route }) => {
                               alignItems: "flex-end",
                             }}
                           >
-                            <Text
-                              style={{
-                                backgroundColor: "#3240FF",
-                                alignSelf: "flex-end",
-                                padding: 10,
-                                borderRadius: 10,
-                                color: "#FFFFFF",
-                                borderBottomRightRadius: 0,
-                              }}
-                            >
-                              {item.data.message}
-                            </Text>
+                            {item.data?.image ? (
+                              <Image
+                                source={{ uri: item.data?.image }}
+                                style={{
+                                  width: windowWidth / 2,
+                                  height: 150,
+                                  borderWidth: 3,
+                                  // marginBottom: 20,
+                                }}
+                              />
+                            ) : null}
+
+                            {!!item.data.message && (
+                              <Text
+                                style={{
+                                  backgroundColor: "#3240FF",
+                                  alignSelf: "flex-end",
+                                  padding: 10,
+                                  borderRadius: 10,
+                                  color: "#FFFFFF",
+                                  borderBottomRightRadius: 0,
+                                }}
+                              >
+                                {item.data.message}
+                              </Text>
+                            )}
                             <Image
                               style={{
                                 resizeMode: "cover",
@@ -411,18 +508,32 @@ const ChatScreen = ({ navigation, route }) => {
                           </View>
                         );
                       }
-                    } else {
-                      return (
-                        <View
-                          style={{
-                            marginLeft: 120,
-                            marginRight: 20,
-                            marginBottom: 10,
-                            flexDirection: "row",
-                            alignSelf: "flex-end",
-                            alignItems: "flex-end",
-                          }}
-                        >
+                    }
+
+                    return (
+                      <View
+                        style={{
+                          marginLeft: 120,
+                          marginRight: 20,
+                          marginBottom: 10,
+                          flexDirection: "row",
+                          alignSelf: "flex-end",
+                          alignItems: "flex-end",
+                        }}
+                      >
+                        {item.data?.image ? (
+                          <Image
+                            source={{ uri: item.data?.image }}
+                            style={{
+                              width: windowWidth / 2,
+                              height: 150,
+                              borderWidth: 3,
+                              // marginBottom: 20,
+                            }}
+                          />
+                        ) : null}
+
+                        {!!item.data.message && (
                           <Text
                             style={{
                               backgroundColor: "#3240FF",
@@ -435,74 +546,103 @@ const ChatScreen = ({ navigation, route }) => {
                           >
                             {item.data.message}
                           </Text>
-                          <Image
-                            style={{
-                              resizeMode: "cover",
-                              marginLeft: 11,
-                              height: 39,
-                              width: 39,
-                              borderTopLeftRadius: 10,
-                              borderBottomRightRadius: 10,
-                              borderTopRightRadius: 10,
-                              backgroundColor: "#3240FF",
-                            }}
-                            source={
-                              user.photoURL != null
-                                ? { uri: user.photoURL }
-                                : require("../../assets/user.png")
-                            }
-                          />
-                        </View>
-                      );
-                    }
-                  }
+                        )}
+                        <Image
+                          style={{
+                            resizeMode: "cover",
+                            marginLeft: 11,
+                            height: 39,
+                            width: 39,
+                            borderTopLeftRadius: 10,
+                            borderBottomRightRadius: 10,
+                            borderTopRightRadius: 10,
+                            backgroundColor: "#3240FF",
+                          }}
+                          source={
+                            user.photoURL != null
+                              ? { uri: user.photoURL }
+                              : require("../../assets/user.png")
+                          }
+                        />
+                      </View>
+                    );
+                  } else {
+                    if (index - 1 >= 0) {
+                      if (index + 1 <= chats.length - 1) {
+                        if (chats[index + 1].data.sender != item.data.sender) {
+                          return (
+                            <View
+                              style={{
+                                marginLeft: 20,
+                                marginRight: 120,
+                                marginBottom: 10,
+                                flexDirection: "row",
+                                alignSelf: "flex-start",
+                                alignItems: "flex-end",
+                              }}
+                            >
+                              <Image
+                                style={{
+                                  resizeMode: "cover",
+                                  marginBottom: 29,
+                                  marginRight: 11,
+                                  height: 39,
+                                  width: 39,
+                                  borderRadius: 10,
+                                  borderBottomRightRadius: 0,
+                                  backgroundColor: "#F5F5F5",
+                                }}
+                                source={
+                                  friend?.photoURL != null
+                                    ? { uri: friend.photoURL }
+                                    : require("../../assets/user-blue.png")
+                                }
+                              />
+                              <View>
+                                {item.data?.image ? (
+                                  <Image
+                                    source={{ uri: item.data?.image }}
+                                    style={{
+                                      width: windowWidth / 2,
+                                      height: 150,
+                                      borderWidth: 3,
+                                      // marginBottom: 20,
+                                    }}
+                                  />
+                                ) : null}
 
-                  return (
-                    <View
-                      style={{
-                        marginLeft: 120,
-                        marginRight: 20,
-                        marginBottom: 10,
-                        flexDirection: "row",
-                        alignSelf: "flex-end",
-                        alignItems: "flex-end",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          backgroundColor: "#3240FF",
-                          alignSelf: "flex-end",
-                          padding: 10,
-                          borderRadius: 10,
-                          color: "#FFFFFF",
-                          borderBottomRightRadius: 0,
-                        }}
-                      >
-                        {item.data.message}
-                      </Text>
-                      <Image
-                        style={{
-                          resizeMode: "cover",
-                          marginLeft: 11,
-                          height: 39,
-                          width: 39,
-                          borderTopLeftRadius: 10,
-                          borderBottomRightRadius: 10,
-                          borderTopRightRadius: 10,
-                          backgroundColor: "#3240FF",
-                        }}
-                        source={
-                          user.photoURL != null
-                            ? { uri: user.photoURL }
-                            : require("../../assets/user.png")
+                                {!!item.data.message && (
+                                  <Text
+                                    style={{
+                                      backgroundColor: "#F5F5F5",
+                                      alignSelf: "flex-start",
+                                      padding: 10,
+                                      borderRadius: 10,
+                                      color: "#000000",
+                                      borderBottomLeftRadius: 0,
+                                    }}
+                                  >
+                                    {item.data.message}
+                                  </Text>
+                                )}
+                                <Text
+                                  style={{
+                                    alignSelf: "flex-end",
+                                    color: "#C7C6CE",
+                                    padding: 5,
+                                  }}
+                                >
+                                  {moment(
+                                    new Date(
+                                      item.data.timestamp.seconds * 1000
+                                    ).toUTCString()
+                                  ).fromNow()}
+                                </Text>
+                              </View>
+                            </View>
+                          );
                         }
-                      />
-                    </View>
-                  );
-                } else {
-                  if (index - 1 >= 0) {
-                    if (index + 1 <= chats.length - 1) {
-                      if (chats[index + 1].data.sender != item.data.sender) {
+                      } else {
                         return (
                           <View
                             style={{
@@ -532,18 +672,32 @@ const ChatScreen = ({ navigation, route }) => {
                               }
                             />
                             <View>
-                              <Text
-                                style={{
-                                  backgroundColor: "#F5F5F5",
-                                  alignSelf: "flex-start",
-                                  padding: 10,
-                                  borderRadius: 10,
-                                  color: "#000000",
-                                  borderBottomLeftRadius: 0,
-                                }}
-                              >
-                                {item.data.message}
-                              </Text>
+                              {item.data?.image ? (
+                                <Image
+                                  source={{ uri: item.data?.image }}
+                                  style={{
+                                    width: windowWidth / 2,
+                                    height: 150,
+                                    borderWidth: 3,
+                                    // marginBottom: 20,
+                                  }}
+                                />
+                              ) : null}
+
+                              {!!item.data.message && (
+                                <Text
+                                  style={{
+                                    backgroundColor: "#F5F5F5",
+                                    alignSelf: "flex-start",
+                                    padding: 10,
+                                    borderRadius: 10,
+                                    color: "#000000",
+                                    borderBottomLeftRadius: 0,
+                                  }}
+                                >
+                                  {item.data.message}
+                                </Text>
+                              )}
                               <Text
                                 style={{
                                   alignSelf: "flex-end",
@@ -561,239 +715,308 @@ const ChatScreen = ({ navigation, route }) => {
                           </View>
                         );
                       }
-                    } else {
-                      return (
-                        <View
-                          style={{
-                            marginLeft: 20,
-                            marginRight: 120,
-                            marginBottom: 10,
-                            flexDirection: "row",
-                            alignSelf: "flex-start",
-                            alignItems: "flex-end",
-                          }}
-                        >
-                          <Image
-                            style={{
-                              resizeMode: "cover",
-                              marginBottom: 29,
-                              marginRight: 11,
-                              height: 39,
-                              width: 39,
-                              borderRadius: 10,
-                              borderBottomRightRadius: 0,
-                              backgroundColor: "#F5F5F5",
-                            }}
-                            source={
-                              friend?.photoURL != null
-                                ? { uri: friend.photoURL }
-                                : require("../../assets/user-blue.png")
-                            }
-                          />
-                          <View>
-                            <Text
-                              style={{
-                                backgroundColor: "#F5F5F5",
-                                alignSelf: "flex-start",
-                                padding: 10,
-                                borderRadius: 10,
-                                color: "#000000",
-                                borderBottomLeftRadius: 0,
-                              }}
-                            >
-                              {item.data.message}
-                            </Text>
-                            <Text
-                              style={{
-                                alignSelf: "flex-end",
-                                color: "#C7C6CE",
-                                padding: 5,
-                              }}
-                            >
-                              {moment(
-                                new Date(
-                                  item.data.timestamp.seconds * 1000
-                                ).toUTCString()
-                              ).fromNow()}
-                            </Text>
-                          </View>
-                        </View>
-                      );
                     }
-                  }
 
-                  return (
-                    <View
-                      style={{
-                        marginLeft: 20,
-                        marginRight: 120,
-                        marginBottom: 10,
-                        flexDirection: "row",
-                        alignSelf: "flex-start",
-                        alignItems: "flex-end",
-                      }}
-                    >
-                      <Image
+                    return (
+                      <View
                         style={{
-                          resizeMode: "cover",
-                          marginBottom: 29,
-                          marginRight: 11,
-                          height: 39,
-                          width: 39,
-                          borderRadius: 10,
-                          borderBottomRightRadius: 0,
-                          backgroundColor: "#F5F5F5",
-                        }}
-                        source={
-                          friend?.photoURL != null
-                            ? { uri: friend.photoURL }
-                            : require("../../assets/user-blue.png")
-                        }
-                      />
-                      <Text
-                        style={{
-                          backgroundColor: "#F5F5F5",
+                          marginLeft: 20,
+                          marginRight: 120,
+                          marginBottom: 10,
+                          flexDirection: "row",
                           alignSelf: "flex-start",
-                          padding: 10,
-                          borderRadius: 10,
-                          color: "#000000",
-                          borderBottomLeftRadius: 0,
+                          alignItems: "flex-end",
                         }}
                       >
-                        {item.data.message}
-                      </Text>
-                    </View>
-                  );
-                }
-              })()}
-            </View>
-          );
-        }}
-      />
+                        <Image
+                          style={{
+                            resizeMode: "cover",
+                            marginBottom: 29,
+                            marginRight: 11,
+                            height: 39,
+                            width: 39,
+                            borderRadius: 10,
+                            borderBottomRightRadius: 0,
+                            backgroundColor: "#F5F5F5",
+                          }}
+                          source={
+                            friend?.photoURL != null
+                              ? { uri: friend.photoURL }
+                              : require("../../assets/user-blue.png")
+                          }
+                        />
 
-      {chatDetails?.blockedBy === user?.uid ? (
-        <View
-          style={{
-            width: "100%",
-            borderTopWidth: 0.5,
-            borderTopColor: "#C7C6CE",
-            paddingTop: 10,
-            justifyContent: "center",
-            backgroundColor: chatBackground,
-            position: "absolute",
-            bottom: 0,
-            height: 90,
-            width: windowWidth,
+                        {item.data?.image ? (
+                          <Image
+                            source={{ uri: item.data?.image }}
+                            style={{
+                              width: windowWidth / 2,
+                              height: 150,
+                              borderWidth: 3,
+                              // marginBottom: 20,
+                            }}
+                          />
+                        ) : null}
+
+                        {!!item.data.message && (
+                          <Text
+                            style={{
+                              backgroundColor: "#F5F5F5",
+                              alignSelf: "flex-start",
+                              padding: 10,
+                              borderRadius: 10,
+                              color: "#000000",
+                              borderBottomLeftRadius: 0,
+                            }}
+                          >
+                            {item.data.message}
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  }
+                })()}
+              </View>
+            );
           }}
-        >
-          <Text style={{ textAlign: "center", color: "white" }}>
-            This user has been blocked by you.
-          </Text>
-        </View>
-      ) : chatDetails?.blockedBy === friend?.uid ? (
-        <View
-          style={{
-            width: "100%",
-            borderTopWidth: 0.5,
-            borderTopColor: "#C7C6CE",
-            paddingTop: 10,
-            justifyContent: "center",
-            backgroundColor: chatBackground,
-            position: "absolute",
-            bottom: 0,
-            height: 90,
-            width: windowWidth,
-          }}
-        >
-          <Text style={{ textAlign: "center", color: "white" }}>
-            You have been blocked by this user.
-          </Text>
-        </View>
-      ) : (
-        <>
+        />
+
+        {chatDetails?.blockedBy === user?.uid ? (
           <View
             style={{
+              width: "100%",
+              borderTopWidth: 0.5,
+              borderTopColor: "#C7C6CE",
+              paddingTop: 10,
+              justifyContent: "center",
               backgroundColor: chatBackground,
               position: "absolute",
               bottom: 0,
-              flexDirection: "row",
               height: 90,
               width: windowWidth,
-              alignItems: "center",
-              borderTopWidth: 0.5,
-              borderTopColor: "#C7C6CE",
             }}
           >
-            <View style={{ width: windowWidth - 80, marginRight: 10 }}>
-              <TextInput
-                editable={false}
-                style={{
-                  marginLeft: 20,
-                  fontSize: 18,
-                  marginBottom: 10,
-                  color: chatDetails ? "#FFFFFF" : "#000000",
-                }}
-              />
-              <View style={{ flexDirection: "row" }}>
-                <TouchableOpacity style={{ marginLeft: 20 }}>
-                  <AntDesign name={"pluscircle"} size={30} color={"#2EDDB8"} />
-                </TouchableOpacity>
-                <TouchableOpacity style={{ marginLeft: 10 }}>
-                  <Fontisto name={"smiley"} size={30} color={"#C7C6CE"} />
-                </TouchableOpacity>
-                <TouchableOpacity style={{ marginLeft: 10 }}>
-                  <AntDesign name={"picture"} size={30} color={"#C7C6CE"} />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <TouchableOpacity
-              // disabled={blockCheck}
-              onPress={() => {
-                sendMessage(input);
-              }}
-              style={{
-                backgroundColor: "#D2FFF4",
-                width: 50,
-                height: 50,
-                borderRadius: 100,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Ionicons name={"ios-send-outline"} size={30} color={"#2EDDB8"} />
-            </TouchableOpacity>
+            <Text style={{ textAlign: "center", color: "white" }}>
+              This user has been blocked by you.
+            </Text>
           </View>
-          <TextInput
+        ) : chatDetails?.blockedBy === friend?.uid ? (
+          <View
             style={{
+              width: "100%",
+              borderTopWidth: 0.5,
+              borderTopColor: "#C7C6CE",
+              paddingTop: 10,
+              justifyContent: "center",
+              backgroundColor: chatBackground,
               position: "absolute",
               bottom: 0,
-              marginLeft: 20,
-              fontSize: 18,
-              marginBottom: 51,
-              color: chatDetails ? "#FFFFFF" : "#000000",
+              height: 90,
+              width: windowWidth,
             }}
-            placeholder={"Type a message..."}
-            placeholderTextColor={chatDetails ? "#A3A3AD" : "#C7C7CD"}
-            onChangeText={setInput}
-            value={input}
+          >
+            <Text style={{ textAlign: "center", color: "white" }}>
+              You have been blocked by this user.
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View
+              style={{
+                backgroundColor: chatBackground,
+                position: "absolute",
+                bottom: 0,
+                flexDirection: "row",
+                height: 90,
+                width: windowWidth,
+                alignItems: "center",
+                borderTopWidth: 0.5,
+                borderTopColor: "#C7C6CE",
+              }}
+            >
+              <View
+                style={{
+                  width: windowWidth - 80,
+                  marginRight: 10,
+                }}
+              >
+                <TextInput
+                  editable={false}
+                  style={{
+                    marginLeft: 20,
+                    fontSize: 18,
+                    marginBottom: 10,
+                    color: chatDetails ? "#FFFFFF" : "#000000",
+                  }}
+                />
+                <View style={{ flexDirection: "row" }}>
+                  <TouchableOpacity style={{ marginLeft: 20 }}>
+                    <AntDesign
+                      name={"pluscircle"}
+                      size={30}
+                      color={"#2EDDB8"}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      Keyboard.dismiss();
+                      emoji ? setEmoji(false) : setEmoji(true);
+                    }}
+                    style={{ marginLeft: 10 }}
+                  >
+                    <Fontisto name={"smiley"} size={30} color={"#C7C6CE"} />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setModalVisible(!modalVisible);
+                    }}
+                    style={{ marginLeft: 10 }}
+                  >
+                    <AntDesign name={"picture"} size={30} color={"#C7C6CE"} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+              <TouchableOpacity
+                // disabled={blockCheck}
+                onPress={() => {
+                  sendMessage(input);
+                }}
+                style={{
+                  backgroundColor: "#D2FFF4",
+                  width: 50,
+                  height: 50,
+                  borderRadius: 100,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Ionicons
+                  name={"ios-send-outline"}
+                  size={30}
+                  color={"#2EDDB8"}
+                />
+              </TouchableOpacity>
+            </View>
+            <TextInput
+              style={{
+                position: "absolute",
+                bottom: 0,
+                marginLeft: 20,
+                fontSize: 18,
+                marginBottom: 51,
+                color: chatDetails ? "#FFFFFF" : "#000000",
+              }}
+              placeholder={"Type a message..."}
+              placeholderTextColor={chatDetails ? "#A3A3AD" : "#C7C7CD"}
+              onChangeText={setInput}
+              value={input}
+            />
+          </>
+        )}
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          style={{ flexDirection: "column" }}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}
+        >
+          <View
+            style={{
+              height: 300,
+            }}
           />
-        </>
-      )}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={backgroundModalVisible}
-        style={{ flexDirection: "column" }}
-        onRequestClose={() => {
-          setBackgroundModalVisible(!backgroundModalVisible);
-        }}
-      >
-        <ColorPicker
-          onColorSelected={(color) => backgroundChangeColor(color)}
-          style={{ flex: 1, backgroundColor: "white" }}
+          <View
+            style={{
+              backgroundColor: chatBackground,
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                padding: 10,
+                alignItems: "center",
+                borderTopColor: "white",
+                borderTopWidth: 1,
+              }}
+            >
+              <TouchableOpacity
+                style={{ marginRight: 10 }}
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+              >
+                <Ionicons name="md-arrow-back" size={24} color="white" />
+              </TouchableOpacity>
+              <TextInput
+                placeholder="Search Giphy"
+                placeholderTextColor="gray"
+                style={{
+                  bottom: 0,
+                  height: 40,
+                  flex: 1,
+                  marginRight: 15,
+                  backgroundColor: "#ECECEC",
+                  padding: 10,
+                  color: "black",
+                  borderRadius: 30,
+                }}
+                onChangeText={(text) => onEdit(text)}
+              />
+            </View>
+            <FlatList
+              data={gifs}
+              numColumns={2}
+              style={{ marginBottom: 40 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => sendMessage(item.images.original.url)}
+                >
+                  <Image
+                    resizeMode="contain"
+                    style={{
+                      width: windowWidth / 2,
+                      height: 150,
+                      borderWidth: 3,
+                      marginBottom: 20,
+                    }}
+                    source={{ uri: item.images.original.url }}
+                  />
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={backgroundModalVisible}
+          style={{ flexDirection: "column" }}
+          onRequestClose={() => {
+            setBackgroundModalVisible(!backgroundModalVisible);
+          }}
+        >
+          <ColorPicker
+            onColorSelected={(color) => backgroundChangeColor(color)}
+            style={{ flex: 1, backgroundColor: "white" }}
+          />
+        </Modal>
+      </KeyboardAvoidingView>
+      {emoji ? (
+        <EmojiSelector
+          showSearchBar={false}
+          showTabs={true}
+          showHistory={true}
+          showSectionTitles={true}
+          category={Categories.all}
+          onEmojiSelected={(emoji) => setInput(emoji)}
         />
-      </Modal>
-    </View>
+      ) : null}
+    </SafeAreaView>
   );
 };
 
